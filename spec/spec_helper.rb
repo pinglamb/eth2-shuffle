@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "eth2/shuffle"
+require 'eth2/shuffle'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  config.example_status_persistence_file_path = '.rspec_status'
 
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
@@ -12,4 +12,12 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.include(
+    Module.new do
+      def file_fixture(file)
+        File.open(File.expand_path("./fixtures/#{file}", File.dirname(__FILE__)))
+      end
+    end
+  )
 end

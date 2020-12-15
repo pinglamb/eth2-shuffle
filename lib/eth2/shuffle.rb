@@ -22,14 +22,14 @@ module Eth2
         output = input.dup
 
         rounds.times do |r|
-          pivot =
-            [digest(["#{seed}#{[r].pack('C').unpack1('H*')}"].pack('H*'))[0..15]].pack('H*').unpack1('Q<*') % list_size
+          buffer = "#{[seed].pack('H*')}#{[r].pack('C')}"
+          pivot = [digest(buffer)[0..15]].pack('H*').unpack1('Q<*') % list_size
 
           m1 = (pivot + 1) / 2
           (0...m1).each do |i|
             j = pivot - i
-            buffer = "#{seed}#{[r].pack('C').unpack1('H*')}#{[j / 256].pack('V').unpack1('H*')}"
-            source = digest([buffer].pack('H*'))
+            buffer = "#{[seed].pack('H*')}#{[r].pack('C')}#{[j / 256].pack('V')}"
+            source = digest(buffer)
             byte = source[((j % 256) / 8 * 2)..((j % 256) / 8 * 2 + 1)].hex
             bit = (byte / 2**(j % 8)) & 0x1
 
@@ -40,8 +40,8 @@ module Eth2
 
           ((pivot + 1)...m2).each do |i|
             j = list_size - (i - pivot)
-            buffer = "#{seed}#{[r].pack('C').unpack1('H*')}#{[j / 256].pack('V').unpack1('H*')}"
-            source = digest([buffer].pack('H*'))
+            buffer = "#{[seed].pack('H*')}#{[r].pack('C')}#{[j / 256].pack('V')}"
+            source = digest(buffer)
             byte = source[((j % 256) / 8 * 2)..((j % 256) / 8 * 2 + 1)].hex
             bit = (byte / 2**(j % 8)) & 0x1
 

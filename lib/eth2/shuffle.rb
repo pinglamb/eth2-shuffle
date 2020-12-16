@@ -14,14 +14,52 @@ module Eth2
   # Referencing: https://github.com/protolambda/eth2-shuffle
   module Shuffle
     class << self
+      def permute_index(rounds, index, list_size, seed)
+        _permute_index(rounds, index, list_size, seed, true)
+      end
+
+      def unpermute_index(rounds, index, list_size, seed)
+        _permute_index(rounds, index, list_size, seed, false)
+      end
+
       def shuffle_list(input, rounds, seed)
+        _shuffle_list(input, rounds, seed, true)
+      end
+
+      def unshuffle_list(input, rounds, seed)
+        _shuffle_list(input, rounds, seed, false)
+      end
+
+      private
+
+      def _permute_index(rounds, index, list_size, seed, dir)
+        iter = dir ? 0.upto(rounds - 1) : (rounds - 1).downto(0)
+        iter.each do |r|
+          buffer = "#{[seed].pack('H*')}#{[r].pack('C')}"
+          pivot = [digest(buffer)[0..15]].pack('H*').unpack1('Q<*') % list_size
+          flip = (pivot + (list_size - index)) % list_size
+          position = [index, flip].max
+
+          buffer = "#{[seed].pack('H*')}#{[r].pack('C')}#{[position / 256].pack('V')}"
+          source = digest(buffer)
+          byte = source[((position % 256) / 8 * 2)..((position % 256) / 8 * 2 + 1)].hex
+          bit = (byte / 2**(position % 8)) & 0x1
+
+          index = flip if bit == 1
+        end
+
+        index
+      end
+
+      def _shuffle_list(input, rounds, seed, dir)
         list_size = input.size
 
-        return input if list_size == 0
+        return input if list_size.zero?
 
         output = input.dup
 
-        rounds.times do |r|
+        iter = dir ? 0.upto(rounds - 1) : (rounds - 1).downto(0)
+        iter.each do |r|
           buffer = "#{[seed].pack('H*')}#{[r].pack('C')}"
           pivot = [digest(buffer)[0..15]].pack('H*').unpack1('Q<*') % list_size
 
@@ -31,7 +69,7 @@ module Eth2
             buffer = "#{[seed].pack('H*')}#{[r].pack('C')}#{[j / 256].pack('V')}"
             source = digest(buffer)
             byte = source[((j % 256) / 8 * 2)..((j % 256) / 8 * 2 + 1)].hex
-            bit = (byte / 2**(j % 8)) & 0x1
+            bit = (byte / 2**(j % 8)) % 2
 
             output[i], output[j] = output[j], output[i] if bit == 1
           end
@@ -43,7 +81,7 @@ module Eth2
             buffer = "#{[seed].pack('H*')}#{[r].pack('C')}#{[j / 256].pack('V')}"
             source = digest(buffer)
             byte = source[((j % 256) / 8 * 2)..((j % 256) / 8 * 2 + 1)].hex
-            bit = (byte / 2**(j % 8)) & 0x1
+            bit = (byte / 2**(j % 8)) % 2
 
             output[i], output[j] = output[j], output[i] if bit == 1
           end
@@ -51,8 +89,6 @@ module Eth2
 
         output
       end
-
-      private
 
       def digest(hex)
         Digest::SHA256.hexdigest(hex)

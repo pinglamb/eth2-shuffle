@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-require_relative 'lib/eth2/shuffle/version'
+require_relative 'lib/eth2-shuffle/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'eth2-shuffle'
-  spec.version = Eth2::Shuffle::VERSION
+  spec.version = Eth2Shuffle::VERSION
   spec.authors = ['pinglamb']
   spec.email = ['pinglambs@gmail.com']
 
   spec.summary = 'ETH2 Shuffling Algorithm - Swap or Not'
-  spec.description =
-    'Thanks @benjaminion - https://hackmd.io/@benjaminion/shuffling'
+  spec.description = 'Thanks @benjaminion - https://hackmd.io/@benjaminion/shuffling'
   spec.homepage = 'https://github.com/pinglamb/eth2-shuffle'
   spec.license = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
@@ -22,9 +21,7 @@ Gem::Specification.new do |spec|
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files =
     Dir.chdir(File.expand_path(__dir__)) do
-      `git ls-files -z`
-        .split("\x0")
-        .reject { |f| f.match(%r{\A(?:test|spec|features)/}) }
+      `git ls-files -z`.split("\x0").reject { |f| f.match(%r{\A(?:test|spec|features)/}) }
     end
   spec.bindir = 'exe'
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

@@ -2,7 +2,7 @@
 
 require 'csv'
 
-RSpec.describe Eth2::Shuffle do
+RSpec.describe Eth2Shuffle do
   tests = CSV.parse(file_fixture('tests.csv').read)
   tests.each.with_index do |data, r|
     seed = data[0]
@@ -12,24 +12,24 @@ RSpec.describe Eth2::Shuffle do
 
     it "permute_index - #{r}" do
       size.times do |i|
-        permuted = Eth2::Shuffle.permute_index(90, i, size, seed)
+        permuted = Eth2Shuffle.permute_index(90, i, size, seed)
         expect(output[permuted]).to eq(input[i])
       end
     end
 
     it "unpermute_index - #{r}" do
       size.times do |i|
-        permuted = Eth2::Shuffle.unpermute_index(90, i, size, seed)
+        permuted = Eth2Shuffle.unpermute_index(90, i, size, seed)
         expect(input[permuted]).to eq(output[i])
       end
     end
 
     it "shuffle_list - #{r}" do
-      expect(Eth2::Shuffle.shuffle_list(input, 90, seed)).to eq(output)
+      expect(Eth2Shuffle.shuffle_list(input, 90, seed)).to eq(output)
     end
 
     it "unshuffle_list - #{r}" do
-      expect(Eth2::Shuffle.unshuffle_list(output, 90, seed)).to eq(input)
+      expect(Eth2Shuffle.unshuffle_list(output, 90, seed)).to eq(input)
     end
   end
 end
